@@ -258,30 +258,6 @@ static void i_device_data(OGL3 *ogl)
 
 /*---------------------------------------------------------------------------*/
 
-static void i_scale_rotate_Z(GLfloat *m, const real32_t a, const real32_t s)
-{
-    real32_t ca = bmath_cosf(a);
-    real32_t sa = bmath_sinf(a);
-    m[0] = s * ca;
-    m[1] = s * sa;
-    m[2] = 0;
-    m[3] = 0;
-    m[4] = -s * sa;
-    m[5] = s * ca;
-    m[6] = 0;
-    m[7] = 0;
-    m[8] = 0;
-    m[9] = 0;
-    m[10] = 1;
-    m[11] = 0;
-    m[12] = 0;
-    m[13] = 0;
-    m[14] = 0;
-    m[15] = 1;
-}
-
-/*---------------------------------------------------------------------------*/
-
 void ogl3_draw(OGL3 *ogl, const real32_t width, const real32_t height, const real32_t angle, const real32_t scale)
 {
     GLfloat m[16];
@@ -318,7 +294,7 @@ void ogl3_draw(OGL3 *ogl, const real32_t width, const real32_t height, const rea
     cassert((err = glGetError()) == GL_NO_ERROR);
 
     /* Model-View-Projection and draw */
-    i_scale_rotate_Z(m, angle * 2 * kBMATH_PIf, scale);
+    glhello_scale_rotate_Z(m, angle * 2 * kBMATH_PIf, scale);
     glUniformMatrix4fv(ogl->mvp_uniform, 1, GL_FALSE, m);
     glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, 0);
     cassert((err = glGetError()) == GL_NO_ERROR);

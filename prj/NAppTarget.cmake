@@ -763,6 +763,21 @@ endfunction()
 
 #------------------------------------------------------------------------------
 
+function(nap_link_metal targetName)
+
+    if (NOT ${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+        message(FATAL_ERROR "Cannot enable Metal on non-OSX target.")
+    endif()
+
+    target_link_libraries(${targetName}
+        ${CMAKE_OSX_SYSROOT}/System/Library/Frameworks/Metal.framework
+        ${CMAKE_OSX_SYSROOT}/System/Library/Frameworks/MetalKit.framework
+    )
+
+endfunction()
+
+#------------------------------------------------------------------------------
+
 function(nap_link_with_libraries targetName targetType firstLevelDepends)
 
     #

@@ -8,6 +8,7 @@
 #include "ogl1.h"
 #include "ogl2.h"
 #include "ogl3.h"
+#include "metal.h"
 
 typedef struct _app_t App;
 
@@ -21,6 +22,7 @@ struct _app_t
     OGL1 *ogl1;
     OGL2 *ogl2;
     OGL3 *ogl3;
+    Metal *metal;
     uint32_t api;
     real32_t angle;
     real32_t scale;
@@ -41,6 +43,9 @@ static void i_destroy_gl_apps(App *app)
 
     if (app->ogl3 != NULL)
         ogl3_destroy(&app->ogl3);
+
+    if (app->metal != NULL)
+        metal_destroy(&app->metal);
 }
 
 /*---------------------------------------------------------------------------*/
@@ -112,7 +117,16 @@ static void i_set_glcontext(App *app, const uint32_t index)
             break;
 
         case 10:
+        {
+#ifdef __MACOS__
+            int metalerr;
+            app->metal = metal_create(app->glview, &metalerr);
+            if (app->metal == NULL)
+                err = str_printf("Error creating Metal context\nError code: %d", metalerr);
+#else
             err = str_printf("Error creating Metal context\n%s", "Not available");
+#endif // __MACOS__
+        }
             break;
 
         default:
@@ -169,7 +183,9 @@ static void i_OnDraw(App *app, Event *e)
     case 7:
     case 8:
     case 9:
+        break;
     case 10:
+        metal_draw(app->metal, app->angle, app->scale);
         break;
     default:
         cassert_default(app->api);
@@ -201,7 +217,9 @@ static void i_OnSize(App *app, Event *e)
     case 7:
     case 8:
     case 9:
+        break;
     case 10:
+        // Metal resizes itself
         break;
     default:
         break;
@@ -381,6 +399,30 @@ void glhello_texdata(const byte_t **texdata, uint32_t *texwidth, uint32_t *texhe
     *texwidth = pixbuf_width(APP->texdata);
     *texheight = pixbuf_height(APP->texdata);
     *texformat = pixbuf_format(APP->texdata);
+}
+
+/*---------------------------------------------------------------------------*/
+
+void glhello_scale_rotate_Z(real32_t *m, const real32_t a, const real32_t s)
+{
+    real32_t ca = bmath_cosf(a);
+    real32_t sa = bmath_sinf(a);
+    m[0] = s * ca;
+    m[1] = s * sa;
+    m[2] = 0;
+    m[3] = 0;
+    m[4] = -s * sa;
+    m[5] = s * ca;
+    m[6] = 0;
+    m[7] = 0;
+    m[8] = 0;
+    m[9] = 0;
+    m[10] = 1;
+    m[11] = 0;
+    m[12] = 0;
+    m[13] = 0;
+    m[14] = 0;
+    m[15] = 1;
 }
 
 /*---------------------------------------------------------------------------*/

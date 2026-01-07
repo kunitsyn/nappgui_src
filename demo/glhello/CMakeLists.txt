@@ -1,3 +1,6 @@
 nap_desktop_app(GLHello "" NRC_EMBEDDED)
 nap_link_opengl(GLHello)
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Darwin")
+    nap_link_metal(GLHello)
+endif()
 set_target_properties(GLHello PROPERTIES FOLDER "demo")
